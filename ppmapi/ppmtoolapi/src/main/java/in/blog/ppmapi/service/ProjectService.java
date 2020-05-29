@@ -14,7 +14,6 @@ public class ProjectService {
 
 	@Autowired
 	private ProjectRepository projectRepository;
-
 	@Autowired
 	private BacklogRepository backlogRepository;
 	
