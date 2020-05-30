@@ -39,11 +39,11 @@ public class ProjectTaskService {
 			projectTask.setProjectSequence(projectIdentifier+"-"+backlogSequence);//FP01-1,FP01-2,SP01-1
 			projectTask.setProjectIdentifer(projectIdentifier);
 			//setting default priority and status
-			if(projectTask.getPriority()==null) {
-				projectTask.setPriority(3);	
+			if(projectTask.getPriority()==0 || projectTask.getPriority()==null) {
+				projectTask.setPriority(3);	//Low Priority
 			}
 			if(projectTask.getStatus()=="" || projectTask.getStatus()==null) {
-				projectTask.setStatus("TO_DO");
+				projectTask.setStatus("TODO");
 			}
 			// Few changes done by me
 			ProjectTask projectTask2 = projectTaskRepository.save(projectTask);
