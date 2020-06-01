@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { classnames } from "classnames";
-import { addProjectTask } from "./../../../actions/BacklogActions";
+import classnames from "classnames";
+import { addProjectTask } from "../../../actions/BacklogActions";
+import PropTypes from "prop-types";
 
 class AddProjectTask extends Component {
   constructor(props) {
@@ -13,15 +13,42 @@ class AddProjectTask extends Component {
     this.state = {
       summary: "",
       acceptanceCriteria: "",
-      status: "TODO",
+      status: "TO_DO",
       priority: 0,
       dueDate: "",
-      projectIdentifer: id,
-      erros: {},
+      projectIdentifier: id,
+      errors: {},
     };
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+  onChange(event) {
+    this.setState({ [event.target.name]: event.target.value });
+  }
+  onSubmit(event) {
+    event.preventDefault();
+    const newProjectTask = {
+      summary: this.state.summary,
+      acceptanceCriteria: this.state.acceptanceCriteria,
+      status: this.state.status,
+      priority: this.state.priority,
+      dueDate: this.state.dueDate,
+    };
+    this.props.addProjectTask(
+      this.state.projectIdentifier,
+      newProjectTask,
+      this.props.history
+    );
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
   }
   render() {
     const { id } = this.props.match.params;
+    //create err object otherwise we have to use whole this.state.error everytym
+    const { errors } = this.state;
     return (
       <div className="add-PBI">
         <div className="container">
@@ -30,19 +57,23 @@ class AddProjectTask extends Component {
               <Link to={`/projectBoard/${id}`} className="btn btn-light">
                 Back to Project Board
               </Link>
-              <h4 className="display-4 text-center">
-                Add /Update Project Task
-              </h4>
+              <h4 className="display-4 text-center">Add Project Task</h4>
               <p className="lead text-center">Project Name + Project Code</p>
               <form onSubmit={this.onSubmit}>
                 <div className="form-group">
                   <input
                     type="text"
-                    className="form-control form-control-lg"
+                    className={classnames("form-control form-control-lg ", {
+                      "is-invalid": errors.summary,
+                    })}
                     name="summary"
                     placeholder="Project Task summary"
                     value={this.state.summary}
+                    onChange={this.onChange}
                   />
+                  {errors.summary && (
+                    <div className="invalid-feedback">{errors.summary}</div>
+                  )}
                 </div>
                 <div className="form-group">
                   <textarea
@@ -50,6 +81,7 @@ class AddProjectTask extends Component {
                     placeholder="Acceptance Criteria"
                     name="acceptanceCriteria"
                     value={this.state.acceptanceCriteria}
+                    onChange={this.onChange}
                   ></textarea>
                 </div>
                 <h6>Due Date</h6>
@@ -59,6 +91,7 @@ class AddProjectTask extends Component {
                     className="form-control form-control-lg"
                     name="dueDate"
                     value={this.state.dueDate}
+                    onChange={this.onChange}
                   />
                 </div>
                 <div className="form-group">
@@ -66,6 +99,7 @@ class AddProjectTask extends Component {
                     className="form-control form-control-lg"
                     name="priority"
                     value={this.state.priority}
+                    onChange={this.onChange}
                   >
                     <option value={0}>Select Priority</option>
                     <option value={1}>High</option>
@@ -79,6 +113,7 @@ class AddProjectTask extends Component {
                     className="form-control form-control-lg"
                     name="status"
                     value={this.state.status}
+                    onChange={this.onChange}
                   >
                     <option value="">Select Status</option>
                     <option value="TO_DO">TO DO</option>
@@ -99,7 +134,12 @@ class AddProjectTask extends Component {
     );
   }
 }
+
 AddProjectTask.propTypes = {
   addProjectTask: PropTypes.func.isRequired,
+  errors: PropTypes.object.isRequired,
 };
-export default connect(null, { addProjectTask })(AddProjectTask);
+const mapStateToProps = (state) => ({
+  errors: state.errors,
+});
+export default connect(mapStateToProps, { addProjectTask })(AddProjectTask);
